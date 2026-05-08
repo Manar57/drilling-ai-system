@@ -88,7 +88,8 @@ const summaryWob = document.getElementById('summaryWob');
 const summaryRop = document.getElementById('summaryRop');
 
 // API URL (Flask server)
-const API_URL = 'http://127.0.0.1:5000/predict';
+// const API_URL = 'http://127.0.0.1:5000/predict';
+const API_URL = '/predict';
 
 
 function checkInputs() {
