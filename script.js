@@ -147,7 +147,19 @@ async function classifyWithModel() {
             body: formData
         });
         
-        const data = await response.json();
+        const text = await response.text();
+
+        console.log("STATUS:", response.status);
+        console.log("SERVER RESPONSE:", text);
+
+        let data;
+
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            alert("Server returned invalid response:\n\n" + text);
+            return;
+        }
         
         if (data.success) {
             // Update UI with results
