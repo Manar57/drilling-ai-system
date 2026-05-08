@@ -157,7 +157,7 @@ async function classifyWithModel() {
         try {
             data = JSON.parse(text);
         } catch (e) {
-            alert("Server returned invalid response:\n\n" + text);
+            alert("Status: " + response.status + "\n\nServer returned invalid response:\n\n" + text);
             return;
         }
         
