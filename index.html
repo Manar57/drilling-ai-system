@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drilling Cuttings Classification System</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Google Fonts - Professional fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- html2pdf library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        
+        <div id="userBar" style="display: none; background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); border-radius: 60px; padding: 8px 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255, 255, 255, 0.1);">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="background: linear-gradient(135deg, #3b82f6, #2563eb); width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-user" style="color: white; font-size: 20px;"></i>
+                </div>
+                <div>
+                    <strong id="usernameDisplay" style="color: white; font-size: 1rem;"></strong>
+                    <small id="userStats" style="display: block; color: #94a3b8; font-size: 0.7rem;"></small>
+                </div>
+            </div>
+            <button onclick="handleLogout()" style="background: rgba(239, 68, 68, 0.9); border: none; padding: 8px 24px; border-radius: 40px; color: white; font-weight: 500; cursor: pointer; transition: all 0.2s; backdrop-filter: blur(4px);">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <i class="fas fa-microscope header-icon"></i>
+                <div>
+                    <h1>Drilling Cuttings Classification System</h1>
+                    <p class="header-subtitle">AI-Powered Lithology Identification</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Input Section -->
+            <div class="card input-card">
+                <div class="card-header">
+                    <i class="fas fa-upload"></i>
+                    <h2>Input Data</h2>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Image Upload -->
+                    <div class="input-group">
+                        <label class="input-label">
+                            <i class="fas fa-image"></i>
+                            Rock Sample Image
+                        </label>
+                        <div class="upload-area" id="uploadArea">
+                            <input type="file" id="fileInput" accept="image/*" hidden>
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                            <p class="upload-text">Drag & drop or <span class="browse-text">browse</span></p>
+                            <p class="upload-hint">Supported: JPG, PNG (Max 10MB)</p>
+                        </div>
+                        <div class="preview-area" id="previewArea" style="display: none;">
+                            <img id="previewImage" src="#" alt="Preview">
+                            <button class="change-btn" id="changeImageBtn">
+                                <i class="fas fa-sync-alt"></i> Change Image
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Drilling Parameters -->
+                    <div class="parameters-grid">
+                        <div class="input-group">
+                            <label class="input-label">
+                                <i class="fas fa-arrow-down"></i>
+                                Depth (m)
+                            </label>
+                            <input type="number" class="param-input" id="depthInput" placeholder="e.g., 2500.5" step="0.1">
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">
+                                <i class="fas fa-weight-hanging"></i>
+                                Weight on Bit (klbs)
+                            </label>
+                            <input type="number" class="param-input" id="wobInput" placeholder="e.g., 35.2" step="0.1">
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">
+                                <i class="fas fa-gauge-high"></i>
+                                Rate of Penetration (ft/hr)
+                            </label>
+                            <input type="number" class="param-input" id="ropInput" placeholder="e.g., 45.8" step="0.1">
+                        </div>
+                    </div>
+
+                    <!-- Classify Button -->
+                    <button class="classify-btn" id="classifyBtn" disabled>
+                        <i class="fas fa-robot"></i>
+                        <span>Run Classification</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <!-- Classification Result -->
+                <div class="card result-card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-pie"></i>
+                        <h2>Classification Result</h2>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="result-badge" id="rockTypeBadge">
+                            <span class="result-label">Lithology:</span>
+                            <span class="result-value" id="rockType">Shale</span>
+                        </div>
+
+                        <div class="confidence-section">
+                            <div class="confidence-header">
+                                <span>Confidence Level</span>
+                                <span class="confidence-percent" id="confidenceValue">85%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="confidenceFill" style="width: 85%"></div>
+                            </div>
+                        </div>
+
+                        <div class="properties-grid">
+                            <div class="property">
+                                <span class="property-label">Color</span>
+                                <span class="property-value" id="colorProp">Dark Gray</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-label">Grain Size</span>
+                                <span class="property-value" id="grainSizeProp">Very Fine</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-label">Angularity</span>
+                                <span class="property-value" id="angularityProp">Irregular</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- All Probabilities -->
+                <div class="card probabilities-card">
+                    <div class="card-header">
+                        <i class="fas fa-list"></i>
+                        <h3>All Probabilities</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="probabilities-list" id="probabilitiesList">
+                            <!-- Will be populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Parameters Summary -->
+                <div class="card params-summary">
+                    <div class="card-header">
+                        <i class="fas fa-table"></i>
+                        <h3>Drilling Parameters</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="params-grid">
+                            <div class="param-item">
+                                <span class="param-item-label">Depth</span>
+                                <span class="param-item-value" id="summaryDepth">2500.5 m</span>
+                            </div>
+                            <div class="param-item">
+                                <span class="param-item-label">WOB</span>
+                                <span class="param-item-value" id="summaryWob">35.2 klbs</span>
+                            </div>
+                            <div class="param-item">
+                                <span class="param-item-label">ROP</span>
+                                <span class="param-item-value" id="summaryRop">45.8 ft/hr</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance / Response Time -->
+                <div class="card performance-card" id="performanceCard" style="display: none;">
+                    <div class="card-header">
+                        <i class="fas fa-stopwatch"></i>
+                        <h3>Performance</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="perf-grid">
+                            <div class="perf-item">
+                                <span class="perf-label">Response Time</span>
+                                <span class="perf-value"><span id="responseTimeValue">—</span> ms</span>
+                            </div>
+                            <div class="perf-item">
+                                <span class="perf-label">Avg (last 5)</span>
+                                <span class="perf-value"><span id="avgResponseTimeValue">—</span> ms</span>
+                            </div>
+                        </div>
+                        <p class="perf-hint">Measured from clicking "Run Classification" until results render on screen.</p>
+                    </div>
+                </div>
+
+                <!-- PDF Download Button -->
+                <div class="card pdf-card" id="pdfCard" style="display: none;">
+                    <div class="card-header">
+                        <i class="fas fa-file-pdf"></i>
+                        <h3>Export Report</h3>
+                    </div>
+                    <div class="card-body">
+                        <button class="pdf-btn" id="downloadPdfBtn">
+                            <i class="fas fa-download"></i>
+                            <span>Download Classification Report (PDF)</span>
+                        </button>
+                        <p class="pdf-hint">Includes: lithology, confidence, parameters, properties, and probabilities</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2025 Team F005 | PETE · CHE · CS · ISE</p>
+            <p class="project-info">Automatic Classification of Drilling Particles Using AI Data-Driven Techniques</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

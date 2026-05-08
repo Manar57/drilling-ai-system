@@ -1,0 +1,14 @@
+venv/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+
+# Model files
+*.h5
+
+# VS Code
+.vscode/
+
+# Database
+*.db
